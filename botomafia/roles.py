@@ -1,6 +1,6 @@
 import random
 from strategies import default
-
+import copy
 
 class Role(object):
 
@@ -74,7 +74,6 @@ class Civil(Role):
         return random.choice(self.game.list_players(skip=self.name))
         # return self.game.list_players(skip=self.name)[0]
 
-
 class Sheriff(Civil):
     role = "Sheriff"
 
@@ -117,7 +116,14 @@ class Doctor(Civil):
         self.trusted = [self.name]
 
     def heal(self):
-        candidates = self.game.list_players()
+        status = self.game.get_status()
+        candidates = []
+        if status['turn'] == 1:
+            candidates = self.game.list_players(skip=self.trusted)
+        elif (status['alive'] - status['mafia']) <= len(self.trusted):
+            candidates = copy.copy(self.trusted)
+        else:
+            candidates = self.game.list_players()
         if self.healed:
             candidates.remove(self.name)
         candidate = random.choice(candidates)
@@ -131,9 +137,12 @@ class Doctor(Civil):
         return random.choice(self.game.list_players(skip=self.trusted))
 
     def get_kill_notice(self, player_id, initiator, role_type):
+        if player_id in self.trusted:
+            self.trusted.remove(player_id)
         if (initiator is Mafia):
             if not player_id and self.night_heal:
-                self.trusted.append(self.night_heal)
+                if self.night_heal not in self.trusted:
+                    self.trusted.append(self.night_heal)
             self.night_heal = None
 
 
