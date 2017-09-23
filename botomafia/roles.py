@@ -1,12 +1,18 @@
 import random
+from strategies import default
 
 
 class Role(object):
 
-    def __init__(self, name, game):
+    def __init__(self, name, game, strategies=[]):
         self.name = name
         self.game = game
         self.configure_role()
+        self.strategies = strategies
+
+    def _call(self, strategy, method, *args, **kwargs):
+        if strategy and method in strategy:
+            strategy.method(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -21,7 +27,7 @@ class Role(object):
         pass
 
     def day_say(self):
-        return None
+        pass
 
     def day_vote(self):
         pass
@@ -33,7 +39,10 @@ class Role(object):
         return None
 
     def kill_many_players(self, kill_list):
-        return True
+        if self.game.get_status()["turn"] == 1:
+            return True
+        else:
+            return True
 
     def listen(self, speech_type, speaker_id, target_id, speech):
         pass
