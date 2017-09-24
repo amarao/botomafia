@@ -31,8 +31,8 @@ allowed, as well as players is not allowed to listen to each other (except
 for mafia which is allowed to listen to select victim at mafia night turn.
 Fist mafia may use day vote to made a decsigion, but not discussion is allowed
 and other mafia is permitted just to follow first mafia decision).
-* _vote-strategies_ are allowed to store vote history. All other limitation
-is the same as for 1-strategy.
+* _vote-strategies_ are allowed to store vote history (up to seven votes per each other player).
+All other limitation is the same as for 1-strategy.
 * _7-strategies_ are allowed to listen to other players. They are permitted
 to store up to 7 facts on each player. Each fact is:
 1) record of activity (if this record contains turn number, that is counted as 2 facts). Example: vote, death at specific turn, 'say' part. If 'say' part
