@@ -213,9 +213,10 @@ class Play(object):
                 results = Counter(votes)
             for victim, score in results.items():
                 if score > len(self.game.mafia())/2:
+                    assert victim not in self.game.mafia()
                     return victim
         else:
-            raise Exception("Mafia unable to deside in 1000 interation."
+            raise Exception("Mafia unable to deside in 10 interations."
                             " Votes: %s" % votes)
 
     def broadcast(
