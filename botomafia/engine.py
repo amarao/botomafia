@@ -82,6 +82,14 @@ class Game(object):
             self.players if player.name not in skip
         ]
 
+    def get_player_initial_strategy(self, player_id):
+        player = self._find_player_by_id(player_id)
+        return player.first_strategy
+
+    def get_player_initial_constants(self, player_id):
+        player = self._find_player_by_id(player_id)
+        return player.initial_constants
+
     def _find_player_by_id(self, player_id):
         for player in self.players:
             if player.name == player_id:

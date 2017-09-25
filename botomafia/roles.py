@@ -13,6 +13,8 @@ class Role(object):
         else:
             self.strategies = strategies
         self.strategy = self._switch_strategy(strategies[0])
+        self.first_strategy = strategies[0]
+        self.initial_constants = {}
         self.configure_role()
 
     def _switch_strategy(self, NewStrategy):
