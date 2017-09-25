@@ -1,5 +1,7 @@
 import random
 from roles import Sheriff, Doctor, Civil, Mafia
+from strategies.default import MafiaZeroStrategy, CivilZeroStrategy
+from strategies.default import SheriffZeroStrategy, DoctorZeroStrategy
 import copy
 from collections import Counter
 import logging
@@ -23,6 +25,10 @@ class Game(object):
         self.dead = []
         self.turn = 0
         self.log = self.init_logging()
+        self.Civil = Civil
+        self.Mafia = Mafia
+        self.Doctor = Doctor
+        self.Sheriff = Sheriff
 
     @staticmethod
     def init_logging():
@@ -42,16 +48,32 @@ class Game(object):
         random.shuffle(names)
         namegen = (name for name in names)
         if sheriff:
-            self.players.append(Sheriff(name=namegen.next(), game=self))
+            self.players.append(Sheriff(
+                name=namegen.next(),
+                game=self,
+                strategies=[SheriffZeroStrategy]
+            ))
             need_to_create -= 1
         if doctor:
-            self.players.append(Doctor(name=namegen.next(), game=self))
+            self.players.append(Doctor(
+                name=namegen.next(),
+                game=self,
+                strategies=[DoctorZeroStrategy]
+            ))
             need_to_create -= 1
         for count in range(self.mafia_count):
-            self.players.append(Mafia(name=namegen.next(), game=self))
+            self.players.append(Mafia(
+                name=namegen.next(),
+                game=self,
+                strategies=[MafiaZeroStrategy]
+            ))
             need_to_create -= 1
         for count in range(need_to_create):
-            self.players.append(Civil(name=namegen.next(), game=self))
+            self.players.append(Civil(
+                name=namegen.next(),
+                game=self,
+                strategies=[CivilZeroStrategy]
+            ))
 
     def list_players(self, skip=[]):
         return [
@@ -321,7 +343,7 @@ class Play(object):
             vote_against = voter.day_vote()
             if voter.name == vote_against:
                 raise Exception("Player %s voting against %s" % (
-                                voter, vote_against
+                                 voter, vote_against
                 ))
             self.game.log.info("Day %s. %s voted against %s." % (
                 self.game.turn, voter.name, vote_against
