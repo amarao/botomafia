@@ -1,7 +1,8 @@
 import random
 from roles import Sheriff, Doctor, Civil, Mafia
-from strategies.default import MafiaZeroStrategy, CivilZeroStrategy
-from strategies.default import SheriffZeroStrategy, DoctorZeroStrategy
+from strategies.default import MafiaZeroStrategy
+from strategies.constant import CivilLiftStrategy, SheriffLiftStrategy
+from strategies.constant import DoctorLiftStrategy
 import copy
 from collections import Counter
 import logging
@@ -51,14 +52,14 @@ class Game(object):
             self.players.append(Sheriff(
                 name=namegen.next(),
                 game=self,
-                strategies=[SheriffZeroStrategy]
+                strategies=[SheriffLiftStrategy]
             ))
             need_to_create -= 1
         if doctor:
             self.players.append(Doctor(
                 name=namegen.next(),
                 game=self,
-                strategies=[DoctorZeroStrategy]
+                strategies=[DoctorLiftStrategy]
             ))
             need_to_create -= 1
         for count in range(self.mafia_count):
@@ -72,7 +73,7 @@ class Game(object):
             self.players.append(Civil(
                 name=namegen.next(),
                 game=self,
-                strategies=[CivilZeroStrategy]
+                strategies=[CivilLiftStrategy]
             ))
 
     def list_players(self, skip=[]):
