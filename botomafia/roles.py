@@ -39,10 +39,7 @@ class Role(object):
         return None
 
     def kill_many_players(self, kill_list):
-        if self.game.get_status()["turn"] == 1:
-            return True
-        else:
-            return True
+        return random.choice([True, False])
 
     def listen(self, speech_type, speaker_id, target_id, speech):
         pass
@@ -97,7 +94,7 @@ class Sheriff(Civil):
 
     def day_vote(self):
         if self.known_mafia:
-            return self.known_mafia[0]
+            return random.choice(self.known_mafia)
         return random.choice(self.game.list_players(skip=self.trusted))
 
     def get_check_result(self, player_id, status):
@@ -105,6 +102,12 @@ class Sheriff(Civil):
             self.trusted.append(player_id)
         elif status == Mafia:
             self.known_mafia.append(player_id)
+
+    def kill_many_players(self, kill_list):
+        for mafia in self.known_mafia:
+            if mafia in kill_list:
+                return True
+        return random.choice([True, False])
 
 
 class Doctor(Civil):
