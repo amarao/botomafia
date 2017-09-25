@@ -8,6 +8,13 @@ from collections import Counter
 import logging
 
 
+class GameError(Exception):
+    def __init__(self, side, message):
+        self.side = side
+        self.message = message
+        super(GameError, self).__init__("%s turn: %s" % (side.role, message))
+
+
 class Game(object):
     def __init__(
             self,
@@ -96,9 +103,12 @@ class Game(object):
                 return player
         import pdb
         pdb.set_trace()
-        raise Exception("Player %s not found, existing players" % str(
-            player_id
-        ), str(self.players))
+        raise GameError(
+            self.side,
+            "Player %s not found, existing players" % (
+                str(player_id),  str(self.players)
+            )
+        )
 
     def _find_players_by_type(self, player_type):
         result = []
@@ -119,7 +129,10 @@ class Game(object):
             return Civil
         elif isinstance(player, Mafia):
             return Mafia
-        raise Exception("Unknown player type %s" % str(type(player)))
+        raise GameError(
+            self.side,
+            "Unknown player type %s" % str(type(player))
+        )
 
     def mafia(self):
         return self._find_players_by_type(Mafia)
@@ -150,6 +163,10 @@ class Game(object):
         self.turn += 1
         player = self.players.pop(0)
         self.players.append(player)
+        self.side = Civil
+
+    def new_night(self):
+        self.side = Mafia
 
     def ended(self):
         if len(self.mafia()) >= len(self.civils()):
@@ -209,6 +226,7 @@ class Play(object):
         self.kill(Civil, kill_list)
 
     def night(self):
+        self.game.new_night()
         victim_id = self.mafia_turn()
         self.sheriff_turn()
         healed_id = self.doctor_turn()
@@ -244,11 +262,17 @@ class Play(object):
                 results = Counter(votes)
             for victim, score in results.items():
                 if score > len(self.game.mafia())/2:
-                    assert victim not in self.game.mafia()
+                    if victim in self.game.mafia():
+                        raise GameError(
+                            self.side,
+                            "Mafia want to nightkill mafioso (%s)" % victim
+                        )
                     return victim
         else:
-            raise Exception("Mafia unable to deside in 10 interations."
-                            " Votes: %s" % votes)
+            raise GameError(
+                self.side,
+                "Mafia unable to deside in 10 interations. Votes: %s" % votes
+            )
 
     def broadcast(
         self, speech_type, speaker_id, target_id=None,
@@ -351,9 +375,12 @@ class Play(object):
         for voter in self.game.players:
             vote_against = voter.day_vote()
             if voter.name == vote_against:
-                raise Exception("Player %s voting against %s" % (
+                raise GameError(
+                    self.side,
+                    "Player %s voting against itself (%s)" % (
                                  voter, vote_against
-                ))
+                    )
+                )
             self.game.log.info("Day %s. %s voted against %s." % (
                 self.game.turn, voter.name, vote_against
             ))
