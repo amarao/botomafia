@@ -2,6 +2,7 @@ import random
 from strategies import default
 import copy
 
+
 class Role(object):
 
     def __init__(self, name, game, strategies=[]):
@@ -71,6 +72,7 @@ class Civil(Role):
         return random.choice(self.game.list_players(skip=self.name))
         # return self.game.list_players(skip=self.name)[0]
 
+
 class Sheriff(Civil):
     role = "Sheriff"
 
@@ -107,6 +109,11 @@ class Sheriff(Civil):
         for mafia in self.known_mafia:
             if mafia in kill_list:
                 return True
+        for player in kill_list:
+            if player not in self.trusted:
+                break
+        else:
+            return False
         return random.choice([True, False])
 
 
