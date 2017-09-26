@@ -41,11 +41,16 @@ class Civil(Role):
     role = "Citizen"
 
 
-class Sheriff(Civil):
+class SpecialRole(Civil):
+    side = "Civil"
+    role = "Some role"
+
+
+class Sheriff(SpecialRole):
     role = "Sheriff"
 
 
-class Doctor(Civil):
+class Doctor(SpecialRole):
     role = "Doctor"
 
 
