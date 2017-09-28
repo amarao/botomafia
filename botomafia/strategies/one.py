@@ -151,16 +151,17 @@ class MafiaOneStrategy(ZeroStrategy):
             self.night_kill = random.choice(
                  self.game.list_players(skip=self.mafia)
             )
-            return messages.Kill(self.night_kill)
+        return messages.Kill(self.night_kill)
 
-    # def listen(self, speech_type, speaker_id, target_id, speech):
-    #     if speech_type == "mafia say":
-    #         if target_id:
-    #             self.night_kill = target_id
+    def listen(self, speech):
+        if type(speech) is messages.MafiaNightSay:
+            if speech.messages.player_id:
+                self.night_kill = speech.messages.player_id
     #     if speech_type == "day_vote" and self.first_vote == None:
     #         self.first_vote = target_id
 
     def listen_Kill(self, speech, message):
+        self.game.log.info("Kill!!!!!")
         self.night_kill = message.player_id
 
     def night_vote(self):
