@@ -344,7 +344,7 @@ class Play(object):
         ]
         self.game.log.info("Vote to remove players: %s" % str(yay_nay_list))
         yay_count = sum(yay_nay_list)
-        if yay_count < len(voters)/2:
+        if yay_count <= len(voters)/2:
             self.game.log.info("Players voted against players removal")
             return []
         else:
@@ -353,6 +353,7 @@ class Play(object):
 
     def move_votes(self, old_votes, winners):
         new_votes = copy.copy(old_votes)
+        # self.game.log.info("winners %s" % winners)
         for winner_id, his_voters in winners.items():
             for voter in his_voters:
                 new_winner_id = voter.move_vote(winner_id)
@@ -362,7 +363,10 @@ class Play(object):
                         new_winner_id
                     ))
                     new_votes[winner_id].remove(voter)
-                    new_votes[new_winner_id].append(voter)
+                    if new_winner_id in new_votes.keys():
+                        new_votes[new_winner_id].append(voter)
+                    else:
+                        new_votes[new_winner_id] = [voter]
                     # self.broadcast("move vote", voter.name, new_winner_id)
                     # FIXME BUG!!!! I need separate framework for notifications
         return new_votes
