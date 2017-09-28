@@ -4,6 +4,7 @@ from strategies.one import MafiaOneStrategy
 from strategies.one import DoctorOneStrategy
 from strategies.one import CivilOneStrategy
 from strategies.one import SheriffOneStrategy
+import messages
 import copy
 from collections import Counter
 import logging
@@ -38,6 +39,7 @@ class Game(object):
         self.Mafia = Mafia
         self.Doctor = Doctor
         self.Sheriff = Sheriff
+        self.side = "unknown"
 
     @staticmethod
     def init_logging():
@@ -254,8 +256,8 @@ class Play(object):
     def mafia_turn(self):
         self.game.log.info("Mafia turn")
         for mafioso in self.game.mafia():
-            target_id = mafioso.night_say()
-            self.broadcast("mafia say", mafioso.name, target_id, "")
+            speech = messages.MafiaNightSay(mafioso.name, mafioso.night_say())
+            self.broadcast(speech, recievers=self.game.mafia())
         for attempt in range(10):
             votes = []
             for mafioso in self.game.mafia():
@@ -265,26 +267,21 @@ class Play(object):
                 if score > len(self.game.mafia())/2:
                     if victim in self.game.mafia():
                         raise GameError(
-                            self.side,
+                            self.game.side,
                             "Mafia want to nightkill mafioso (%s)" % victim
                         )
                     return victim
         else:
             raise GameError(
-                self.side,
+                self.game.side,
                 "Mafia unable to deside in 10 interations. Votes: %s" % votes
             )
 
-    def broadcast(
-        self, speech_type, speaker_id, target_id=None,
-        speech=None, recievers=None
-    ):
+    def broadcast(self, speech, recievers=None):
         if not recievers:
-            recievers = self.game.list_players()
+            recievers = self.game.players
         for reciver in recievers:
-            self.game._find_player_by_id(reciver).listen(
-                speech_type, speaker_id, target_id, speech
-            )
+            reciver._listen(speech)
 
     def kill(self, initiator, kill_list):
         if kill_list:
@@ -301,8 +298,8 @@ class Play(object):
 
     def everybody_speaks(self):
         for speaker in self.game.players:
-            speech = speaker.day_say()
-            self.broadcast(speech, "day", speaker.name, None, speech)
+            speech = messages.DaySay(speaker, speaker.day_say())
+            self.broadcast(speech)
 
     def voting(self):
         votes = {}
@@ -316,8 +313,11 @@ class Play(object):
             winners = copy.copy(new_winners)
             votes = copy.copy(new_votes)
             for winner_id in winners.keys():
-                defence = self.game._find_player_by_id(winner_id).day_defence()
-                self.broadcast("defence", winner_id, None, defence)
+                defence = messages.DayDefence(
+                    winner_id,
+                    self.game._find_player_by_id(winner_id).day_defence()
+                )
+                self.broadcast(defence)
             new_votes = self.move_votes(votes, winners)
             new_winners = self.get_winners(new_votes)
         if len(winners) > 1:
@@ -357,7 +357,8 @@ class Play(object):
                     ))
                     new_votes[winner_id].remove(voter)
                     new_votes[new_winner_id].append(voter)
-                    self.broadcast("move vote", voter.name, new_winner_id)
+                    # self.broadcast("move vote", voter.name, new_winner_id)
+                    # FIXME BUG!!!! I need separate framework for notifications
         return new_votes
 
     def get_winners(self, votes):
@@ -377,7 +378,7 @@ class Play(object):
             vote_against = voter.day_vote()
             if voter.name == vote_against:
                 raise GameError(
-                    self.side,
+                    self.game.side,
                     "Player %s voting against itself (%s)" % (
                                  voter, vote_against
                     )
@@ -385,6 +386,7 @@ class Play(object):
             self.game.log.info("Day %s. %s voted against %s." % (
                 self.game.turn, voter.name, vote_against
             ))
-            self.broadcast("day_vote", voter.name, vote_against, None)
+            # self.broadcast("day_vote", voter.name, vote_against, None)
+            # FIXME BUG!!!
             votes[vote_against] = votes.get(vote_against, []) + [voter]
         return votes

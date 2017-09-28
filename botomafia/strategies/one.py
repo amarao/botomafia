@@ -1,15 +1,16 @@
 from strategies.default import ZeroStrategy
 import random
 import copy
+import messages
 
 
 class CivilOneStrategy(ZeroStrategy):
     def configure_role(self):
         self.first_vote = None
 
-    def listen(self, speech_type, speaker_id, target_id, speech):
-        if speech_type == "day_vote" and self.first_vote == None:
-            self.first_vote = target_id
+    # def listen(self, speech_type, speaker_id, target_id, speech):
+    #     if speech_type == "day_vote" and self.first_vote == None:
+    #         self.first_vote = target_id
 
     def day_vote(self):
         if self.first_vote and self.first_vote != self.name:
@@ -68,9 +69,9 @@ class SheriffOneStrategy(ZeroStrategy):
     def new_day_notice(self):
         self.first_vote = None
 
-    def listen(self, speech_type, speaker_id, target_id, speech):
-        if speech_type == "day_vote" and self.first_vote == None:
-            self.first_vote = target_id
+    # def listen(self, speech_type, speaker_id, target_id, speech):
+    #     if speech_type == "day_vote" and self.first_vote == None:
+    #         self.first_vote = target_id
 
 
 class DoctorOneStrategy(ZeroStrategy):
@@ -107,7 +108,11 @@ class DoctorOneStrategy(ZeroStrategy):
         return candidate
 
     def day_vote(self):
-        if self.first_vote and self.first_vote != self.name and self.first_vote not in self.trusted:
+        if (
+            self.first_vote and
+            self.first_vote != self.name and
+            self.first_vote not in self.trusted
+        ):
             return self.first_vote
         return random.choice(self.game.list_players(skip=self.trusted))
 
@@ -123,9 +128,9 @@ class DoctorOneStrategy(ZeroStrategy):
     def new_day_notice(self):
         self.first_vote = None
 
-    def listen(self, speech_type, speaker_id, target_id, speech):
-        if speech_type == "day_vote" and self.first_vote == None:
-            self.first_vote = target_id
+    # def listen(self, speech_type, speaker_id, target_id, speech):
+    #     if speech_type == "day_vote" and self.first_vote == None:
+    #         self.first_vote = target_id
 
 
 class MafiaOneStrategy(ZeroStrategy):
@@ -146,14 +151,17 @@ class MafiaOneStrategy(ZeroStrategy):
             self.night_kill = random.choice(
                  self.game.list_players(skip=self.mafia)
             )
-            return self.night_kill
+            return messages.Kill(self.night_kill)
 
-    def listen(self, speech_type, speaker_id, target_id, speech):
-        if speech_type == "mafia say":
-            if target_id:
-                self.night_kill = target_id
-        if speech_type == "day_vote" and self.first_vote == None:
-            self.first_vote = target_id
+    # def listen(self, speech_type, speaker_id, target_id, speech):
+    #     if speech_type == "mafia say":
+    #         if target_id:
+    #             self.night_kill = target_id
+    #     if speech_type == "day_vote" and self.first_vote == None:
+    #         self.first_vote = target_id
+
+    def listen_Kill(self, speech, message):
+        self.night_kill = message.player_id
 
     def night_vote(self):
         return self.night_kill

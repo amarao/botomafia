@@ -18,8 +18,9 @@ class Role(object):
         self.configure_role()
 
     def _switch_strategy(self, NewStrategy):
+        save = ['role', 'side', 'name', 'game']
         for method_name in dir(self):
-            if not method_name.startswith('_'):
+            if not method_name.startswith('_') and method_name not in save:
                 delattr(self, method_name)
         for method_name in dir(NewStrategy):
             if not method_name.startswith('_'):
@@ -32,6 +33,20 @@ class Role(object):
 
     def __repr__(self):
         return "%s [%s]" % (self.name, self.role)
+
+    def _listen(self, speech):
+        if 'listen' in dir(self):
+            return self.listen(speech)
+        say_listen_method_name = 'listen_' + speech.__name__
+        if say_listen_method_name in dir(self):
+            say_listen_method = getattr(self, say_listen_method_name)
+            say_listen_method(speech.speaker_id, speech.messages)
+        for message in speech.messages:
+            message_listen_method_name = 'listen_' + message.__name__
+            if message_listen_method_name in dir(self):
+                message_listen_method = getattr(
+                    self, message_listen_method_name)
+                message_listen_method(speech, message)
 
 
 class Civil(Role):

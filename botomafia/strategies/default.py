@@ -1,5 +1,6 @@
 import random
 import copy
+import messages
 
 
 class Strategy(object):
@@ -29,7 +30,7 @@ class Strategy(object):
     def kill_many_players(self, kill_list):
         return random.choice([True, False])
 
-    def listen(self, speech_type, speaker_id, target_id, speech):
+    def listen(self, speech):
         pass
 
     def get_kill_notice(self, initiator, player_id, role_type):
@@ -74,12 +75,10 @@ class MafiaZeroStrategy(ZeroStrategy):
             self.night_kill = random.choice(
                  self.game.list_players(skip=self.mafia)
             )
-            return self.night_kill
+            return [messages.Kill(self.night_kill)]
 
-    def listen(self, speech_type, speaker_id, target_id, speech):
-        if speech_type == "mafia say":
-            if target_id:
-                self.night_kill = target_id
+    def listen_for_mafia_say(self, speaker_id, message):
+        self.night_kill = message.player_id
 
     def night_vote(self):
         return self.night_kill
