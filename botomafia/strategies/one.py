@@ -1,10 +1,10 @@
-from strategies.default import ZeroStrategy
-import random
+import strategies.default
 import copy
 import messages
+import random
 
 
-class CivilOneStrategy(ZeroStrategy):
+class CivilOneStrategy(strategies.default.CivilZeroStrategy):
     def configure_role(self):
         self.first_vote = None
 
@@ -25,7 +25,7 @@ class CivilOneStrategy(ZeroStrategy):
         return True
 
 
-class SheriffOneStrategy(ZeroStrategy):
+class SheriffOneStrategy(strategies.default.SheriffZeroStrategy):
     def kill_many_players(self, kill_list):
         for player in kill_list:
             if player not in self.trusted:
@@ -74,7 +74,7 @@ class SheriffOneStrategy(ZeroStrategy):
     #         self.first_vote = target_id
 
 
-class DoctorOneStrategy(ZeroStrategy):
+class DoctorOneStrategy(strategies.default.DoctorZeroStrategy):
     def kill_many_players(self, kill_list):
         for player in kill_list:
             if player not in self.trusted:
@@ -133,7 +133,7 @@ class DoctorOneStrategy(ZeroStrategy):
     #         self.first_vote = target_id
 
 
-class MafiaOneStrategy(ZeroStrategy):
+class MafiaOneStrategy(strategies.default.MafiaZeroStrategy):
     def configure_role(self):
         self.night_kill = None
         self.first_vote = None
@@ -145,27 +145,6 @@ class MafiaOneStrategy(ZeroStrategy):
 
     def mafia_night_meet(self, mafia):
         self.mafia = [m.name for m in mafia]
-
-    def night_say(self):
-        if not self.night_kill:
-            self.night_kill = random.choice(
-                 self.game.list_players(skip=self.mafia)
-            )
-        return messages.Kill(self.night_kill)
-
-    def listen(self, speech):
-        if type(speech) is messages.MafiaNightSay:
-            if speech.messages.player_id:
-                self.night_kill = speech.messages.player_id
-    #     if speech_type == "day_vote" and self.first_vote == None:
-    #         self.first_vote = target_id
-
-    def listen_Kill(self, speech, message):
-        self.game.log.info("Kill!!!!!")
-        self.night_kill = message.player_id
-
-    def night_vote(self):
-        return self.night_kill
 
     def new_day_notice(self):
         self.night_kill = None

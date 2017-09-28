@@ -30,14 +30,11 @@ class Strategy(object):
     def kill_many_players(self, kill_list):
         return random.choice([True, False])
 
-    def listen(self, speech):
-        pass
-
     def get_kill_notice(self, initiator, player_id, role_type):
         pass
 
     def night_say(self):
-        pass
+        raise Exception("impossible")
 
     def night_vote(self):
         pass
@@ -75,12 +72,15 @@ class MafiaZeroStrategy(ZeroStrategy):
             self.night_kill = random.choice(
                  self.game.list_players(skip=self.mafia)
             )
-            return [messages.Kill(self.night_kill)]
+        assert type(self.night_kill) is str
+        return [messages.Kill(self.night_kill)]
 
-    def listen_for_mafia_say(self, speaker_id, message):
+    def listen_Kill(self, speech, message):
+        assert type(message.player_id) is str
         self.night_kill = message.player_id
 
     def night_vote(self):
+        assert type(self.night_kill) is str
         return self.night_kill
 
     def new_day_notice(self):

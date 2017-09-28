@@ -261,7 +261,12 @@ class Play(object):
         for attempt in range(10):
             votes = []
             for mafioso in self.game.mafia():
-                votes.append(mafioso.night_vote())
+                vote = mafioso.night_vote()
+                if type(vote) is not str:
+                    import pdb
+                    pdb.set_trace()
+                assert type(vote) is str
+                votes.append(vote)
                 results = Counter(votes)
             for victim, score in results.items():
                 if score > len(self.game.mafia())/2:
@@ -286,6 +291,7 @@ class Play(object):
     def kill(self, initiator, kill_list):
         if kill_list:
             for victim in kill_list:
+                assert type(victim) is str
                 role_type = self.game.kill(victim)
                 self.game.log.info("%s was %s [killed by %s's]" % (
                     victim, role_type.role, initiator.role

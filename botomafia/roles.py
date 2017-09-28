@@ -35,14 +35,16 @@ class Role(object):
         return "%s [%s]" % (self.name, self.role)
 
     def _listen(self, speech):
+        if not speech.messages:
+            return
         if 'listen' in dir(self):
             return self.listen(speech)
-        say_listen_method_name = 'listen_' + speech.__name__
+        say_listen_method_name = 'listen_' + speech.__class__.__name__
         if say_listen_method_name in dir(self):
             say_listen_method = getattr(self, say_listen_method_name)
-            say_listen_method(speech.speaker_id, speech.messages)
+            return say_listen_method(speech.speaker_id, speech.messages)
         for message in speech.messages:
-            message_listen_method_name = 'listen_' + message.__name__
+            message_listen_method_name = 'listen_' + message.__class__.__name__
             if message_listen_method_name in dir(self):
                 message_listen_method = getattr(
                     self, message_listen_method_name)
