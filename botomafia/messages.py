@@ -88,8 +88,9 @@ class DayVoteNotice(Event):
 
 
 class VoteResultNotice(Event):
-    'Preliminary vote results (revoting is possible)'
-    pass
+    'Preliminary vote results'
+    def __init__(self, votes):
+        self.votes = votes
 
 
 class AutocatastropheVoteNotice(Event):

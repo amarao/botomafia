@@ -374,8 +374,9 @@ class Play(object):
                         new_votes[new_winner_id].append(voter)
                     else:
                         new_votes[new_winner_id] = [voter]
-                    # self.broadcast("move vote", voter.name, new_winner_id)
-                    # FIXME BUG!!!! I need separate framework for notifications
+                        self.notice(messages.DayVoteNotice(
+                            voter.name, new_winner_id
+                        ))
         return new_votes
 
     def get_winners(self, votes):
