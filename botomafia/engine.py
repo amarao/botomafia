@@ -140,6 +140,9 @@ class Game(object):
     def mafia(self):
         return self._find_players_by_type(Mafia)
 
+    def mafia_list(self):
+        return [m.name for m in self.mafia()]
+
     def civils(self):
         return self._find_players_by_type(Civil)
 
@@ -205,13 +208,14 @@ class Play(object):
     def new_day(self):
         self.game.new_day()
         self.game.log.info("Day %s" % self.game.turn)
-        for player in self.game.players:
-            player.new_day_notice()
+        self.notify(messages.NewDayNotice())
 
     def start(self):
         self.game.log.info('Game started')
-        for mafioso in self.game.mafia():
-            mafioso.mafia_night_meet(self.game.mafia())
+        self.notify(
+            messages.MafiaGreetingNotice(self.game.mafia_list()),
+            recievers=self.game.mafia()
+        )
         while not self.game.ended():
             self.new_day()
             self.day()
@@ -281,6 +285,9 @@ class Play(object):
                 self.game.side,
                 "Mafia unable to deside in 10 interations. Votes: %s" % votes
             )
+
+    def notify(self, event, recievers=None):
+        self.broadcast(messages.Notification(event))
 
     def broadcast(self, speech, recievers=None):
         if not recievers:
@@ -396,7 +403,6 @@ class Play(object):
             self.game.log.info("Day %s. %s voted against %s." % (
                 self.game.turn, voter.name, vote_against
             ))
-            # self.broadcast("day_vote", voter.name, vote_against, None)
-            # FIXME BUG!!!
+            self.notify(messages.DayVoteNotice(voter.name, vote_against))
             votes[vote_against] = votes.get(vote_against, []) + [voter]
         return votes

@@ -12,7 +12,7 @@ class Strategy(object):
     def configure_role(self):
         pass
 
-    def new_day_notice(self):
+    def listen_NewDayNotice(self, speech, message):
         pass
 
     def day_say(self):
@@ -64,8 +64,8 @@ class MafiaZeroStrategy(ZeroStrategy):
     def day_vote(self):
         return random.choice(self.game.list_players(skip=self.mafia))
 
-    def mafia_night_meet(self, mafia):
-        self.mafia = [m.name for m in mafia]
+    def listen_MafiaGreetingNotice(self, speech, message):
+        self.mafia = copy.copy(message.mafia)
 
     def night_say(self):
         if not self.night_kill:
@@ -73,9 +73,9 @@ class MafiaZeroStrategy(ZeroStrategy):
                  self.game.list_players(skip=self.mafia)
             )
         assert type(self.night_kill) is str
-        return [messages.Kill(self.night_kill)]
+        return [messages.WantToKill(self.night_kill)]
 
-    def listen_Kill(self, speech, message):
+    def listen_WantToKill(self, speech, message):
         assert type(message.player_id) is str
         self.night_kill = message.player_id
 
@@ -83,7 +83,7 @@ class MafiaZeroStrategy(ZeroStrategy):
         assert type(self.night_kill) is str
         return self.night_kill
 
-    def new_day_notice(self):
+    def listen_NewDayNotice(self, speech, message):
         self.night_kill = None
 
 

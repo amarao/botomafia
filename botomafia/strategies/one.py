@@ -18,7 +18,7 @@ class CivilOneStrategy(strategies.default.CivilZeroStrategy):
         else:
             return random.choice(self.game.list_players(skip=self.name))
 
-    def new_day_notice(self):
+    def listen_NewDayNotice(self, speech, message):
         self.first_vote = None
 
     def kill_many_players(self, kill_list):
@@ -66,7 +66,7 @@ class SheriffOneStrategy(strategies.default.SheriffZeroStrategy):
         elif status == self.game.Mafia:
             self.known_mafia.append(player_id)
 
-    def new_day_notice(self):
+    def listen_NewDayNotice(self, speech, message):
         self.first_vote = None
 
     # def listen(self, speech_type, speaker_id, target_id, speech):
@@ -125,7 +125,7 @@ class DoctorOneStrategy(strategies.default.DoctorZeroStrategy):
                     self.trusted.append(self.night_heal)
             self.night_heal = None
 
-    def new_day_notice(self):
+    def listen_NewDayNotice(self, speech, message):
         self.first_vote = None
 
     # def listen(self, speech_type, speaker_id, target_id, speech):
@@ -143,9 +143,6 @@ class MafiaOneStrategy(strategies.default.MafiaZeroStrategy):
             return self.first_vote
         return random.choice(self.game.list_players(skip=self.mafia))
 
-    def mafia_night_meet(self, mafia):
-        self.mafia = [m.name for m in mafia]
-
-    def new_day_notice(self):
+    def listen_NewDayNotice(self, speech, message):
         self.night_kill = None
         self.first_vote = None
