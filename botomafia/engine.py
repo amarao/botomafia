@@ -287,7 +287,7 @@ class Play(object):
             )
 
     def notify(self, event, recievers=None):
-        self.broadcast(messages.Notification(event))
+        self.broadcast(messages.Notification(event), recievers)
 
     def broadcast(self, speech, recievers=None):
         if not recievers:
