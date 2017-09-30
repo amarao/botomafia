@@ -1,4 +1,4 @@
-from strategies.default import DefaultStrategy
+from strategies.default import DefaultCivilStrategy
 import types
 
 
@@ -9,7 +9,7 @@ class Role(object):
         self.game = game
         self.stategy = None
         if not strategies:
-            self.strategies = [DefaultStrategy]
+            self.strategies = [DefaultCivilStrategy]
         else:
             self.strategies = strategies
         self.strategy = self._switch_strategy(strategies[0])

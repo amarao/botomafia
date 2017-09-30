@@ -1,63 +1,17 @@
 import random
 import copy
 import messages
+from . import Strategy, MafiaStrategy, CivilStrategy
+from . import DoctorStrategy, SheriffStrategy
 
 
-class Strategy(object):
-    '''
-        This strategy defines minimally playable
-        bot behavior without intent to win,
-        it just provides a minimal working protocol
-    '''
-    def configure_role(self):
-        pass
-
-    def listen_NewDayNotice(self, speech, message):
-        pass
-
-    def day_say(self):
-        pass
-
-    def day_vote(self):
-        pass
-
-    def day_defence(self):
-        pass
-
-    def move_vote(self, player_id):
-        return None
-
-    def kill_many_players(self, kill_list):
-        return random.choice([True, False])
-
-    def get_kill_notice(self, initiator, player_id, role_type):
-        pass
-
-    def night_say(self):
-        raise Exception("impossible")
-
-    def night_vote(self):
-        pass
-
-    def check_player(self):
-        pass
-
-    def get_check_result(self, player, status):
-        pass
-
-    def heal(self):
-        pass
-
-
-class DefaultStrategy(Strategy):
+class DefaultCivilStrategy(Strategy):
     pass
 
 
-class ZeroStrategy(Strategy):
-    pass
+class MafiaZeroStrategy(MafiaStrategy):
+    level = "zero"
 
-
-class MafiaZeroStrategy(ZeroStrategy):
     def configure_role(self):
         self.night_kill = None
 
@@ -87,12 +41,16 @@ class MafiaZeroStrategy(ZeroStrategy):
         self.night_kill = None
 
 
-class CivilZeroStrategy(ZeroStrategy):
+class CivilZeroStrategy(CivilStrategy):
+    level = "zero"
+
     def day_vote(self):
         return random.choice(self.game.list_players(skip=self.name))
 
 
-class SheriffZeroStrategy(CivilZeroStrategy):
+class SheriffZeroStrategy(SheriffStrategy):
+    level = "zero"
+
     def configure_role(self):
         self.trusted = [self.name]
         self.known_mafia = []
@@ -134,7 +92,9 @@ class SheriffZeroStrategy(CivilZeroStrategy):
         return random.choice([True, False])
 
 
-class DoctorZeroStrategy(CivilZeroStrategy):
+class DoctorZeroStrategy(DoctorStrategy):
+    level = "zero"
+
     def configure_role(self):
         self.healed = False
         self.night_heal = None

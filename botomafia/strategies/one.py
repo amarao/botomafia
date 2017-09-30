@@ -1,10 +1,11 @@
 import strategies.default
 import copy
-import messages
 import random
 
 
 class CivilOneStrategy(strategies.default.CivilZeroStrategy):
+    level = "one"
+
     def configure_role(self):
         self.first_vote = None
 
@@ -26,6 +27,8 @@ class CivilOneStrategy(strategies.default.CivilZeroStrategy):
 
 
 class SheriffOneStrategy(strategies.default.SheriffZeroStrategy):
+    level = "one"
+
     def kill_many_players(self, kill_list):
         for player in kill_list:
             if player not in self.trusted:
@@ -75,6 +78,8 @@ class SheriffOneStrategy(strategies.default.SheriffZeroStrategy):
 
 
 class DoctorOneStrategy(strategies.default.DoctorZeroStrategy):
+    level = "one"
+
     def kill_many_players(self, kill_list):
         for player in kill_list:
             if player not in self.trusted:
@@ -134,6 +139,8 @@ class DoctorOneStrategy(strategies.default.DoctorZeroStrategy):
 
 
 class MafiaOneStrategy(strategies.default.MafiaZeroStrategy):
+    level = "one"
+
     def configure_role(self):
         self.night_kill = None
         self.first_vote = None
