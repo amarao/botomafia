@@ -23,7 +23,7 @@ class Role(object):
             if not method_name.startswith('_') and method_name not in save:
                 delattr(self, method_name)
         for method_name in dir(NewStrategy):
-            if not method_name.startswith('_'):
+            if not method_name.startswith('_') and method_name != 'level':
                 function = getattr(NewStrategy, method_name).__func__
                 setattr(self, method_name, types.MethodType(function, self))
         return NewStrategy
